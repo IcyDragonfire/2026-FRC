@@ -82,6 +82,7 @@ enemy_hp = 400
 player_hp = 200
 stun = 0
 magic_select = "N/A"
+option = "N/A"
 
 # list names for displaying panda details
 round_num = []
@@ -220,6 +221,13 @@ while True:
 
         if enemy_hp <= 0:
             print("enemy has died\n")
+            round_num.append(round_count + 1)
+            turn_num.append(player_turn + 1)
+            player_opt.append(option)
+            magic_question.append(magic_select)
+            cpu_option.append(enemy_option)
+            player_hp_panda.append(player_hp)
+            enemy_hp_panda.append(enemy_hp)
             break
         cpu_rand_turn = random.randint(1, 3)
 
@@ -284,11 +292,27 @@ while True:
                 quit()
 
         if enemy_hp <= 0:
+            enemy_hp = 0
+            round_num.append(round_count + 1)
+            turn_num.append(player_turn + 1)
+            player_opt.append(option)
+            magic_question.append(magic_select)
+            cpu_option.append(enemy_option)
+            player_hp_panda.append(player_hp)
+            enemy_hp_panda.append(enemy_hp)
             break
 
         # CPU turn
         if stun == 1:
+            round_num.append(round_count + 1)
+            turn_num.append(player_turn + 1)
+            player_opt.append(option)
+            magic_question.append(magic_select)
+            cpu_option.append(enemy_option)
+            player_hp_panda.append(player_hp)
+            enemy_hp_panda.append(enemy_hp)
             player_turn += 1
+            enemy_option = "N/A"
             continue
 
         print("     CPU Turn: ")

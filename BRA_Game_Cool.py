@@ -1,7 +1,64 @@
+# Import random for CPU option and import pandas to
+# format the statistics at the end
 import random
+import pandas
 
 
-# Functions
+# All Functions
+def make_statement(decoration, statement, instructions):
+    """Emphasise headings by adding decoration"""
+
+    print(f"{decoration * 3} {statement} {decoration * 3}")
+
+
+def instructions():
+    make_statement("🛃", "Instructions", "🛃")
+
+    print('''
+EPIC COOL GAME: THE GAME - Instructions
+
+This is a really cool game I think, choose how many rounds you want to play, and then fight the CPU
+
+There are 4 main turn options: Attack Defend Magic and Escape
+
+    Attack does 100 damage to the CPU
+
+    Defend counterattacks if the CPU does a special attack
+    
+    Magic brings up the Magic option list
+    
+    Escape quits out of the code entirely
+    
+There are 3 magic options you can use:
+
+    Shock stuns the Cpu for that turn and does 50 damage
+    
+    Bigbang does 200 damage
+    
+    Cheat murders the CPU, like that guy is dead bro
+    
+Enjoy game, it is cool. Like its literally in the name!
+
+
+    ''')
+
+
+def yes_no(question):
+    """Checking user answers yes or no (y / n)"""
+
+
+    while True:
+        response = input(question).lower()
+
+        if response == "yes" or response == "y":
+            return "yes"
+        elif response == "no" or response == "n":
+            return "no"
+        else:
+            print()
+            print("Input a yes or no answer.\n")
+
+
 def int_check(question):
     """ Makes sure number is over 0 """
     while True:
@@ -74,18 +131,40 @@ Oceania / Oc
 ''')
 
 
-# Set variables to a
+# Variables, some are set to 0 or "N/A" as a default
 player_turn = 0
 round_count = 0
 enemy_hp = 400
 player_hp = 200
 stun = 0
+magic_select = "N/A"
+option = "N/A"
+
+# list names for displaying panda details
+round_num = []
+turn_num = []
+player_opt = []
+magic_question = []
+cpu_option = []
+player_hp_panda = []
+enemy_hp_panda = []
+
+# Panda variables that will get appended at the end of each turn
+turn_rounds_dict = {
+    'Round': round_num,
+    'Turn': turn_num,
+    'Player option': player_opt,
+    'Magic': magic_question,
+    'Computer option': cpu_option,
+    'Player HP': player_hp_panda,
+    'Computer HP': enemy_hp_panda
+}
 
 # Magic options list
 magics = ("shock", "bigbang", "cheat")
 turn_opt = ("attack", "defend", "magic", "escape")
 
-# Country lists for continent questions
+# Country lists for continent questions, data provided by teacher
 africa = [
     "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi",
     "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros",
@@ -140,6 +219,13 @@ oceania = [
 all_lists = ["africa", "asia", "europe", "north america", "south america", "oceania"]
 
 # main routine
+want_instructions = yes_no("Do you want Instructions? ")
+
+print()
+if want_instructions == "yes":
+    instructions()
+else:
+    print("No instructions\n")
 
 # Choose how many rounds you want and print that number
 rounds_wanted = int_check("How many rounds do you want [Enter for Infinite]")
@@ -153,6 +239,8 @@ else:
 # Start of round
 while True:
 
+    # breaks code if Round count = rounds wanted
+    # Or if Player HP is 0 or less
     print("Start of new round")
     if round_count == rounds_wanted:
         break
@@ -165,10 +253,10 @@ while True:
 
     # Start of turn
     while True:
+        magic_select = "N/A"
 
         # Initialise values at the start of the turn
         stun = 0
-        player_turn += 1
         defense = 0
 
         print("start of turn")
@@ -194,15 +282,35 @@ while True:
         else:
             list = "did not work"
 
+        # Picks the random country
         random_country = random.choice(list)
 
+        # append variables for panda if the CPUs HP is zero
         if enemy_hp <= 0:
+            enemy_hp = 0
+            enemy_option = "N/A"
             print("enemy has died\n")
+            round_num.append(round_count + 1)
+            turn_num.append(player_turn + 1)
+            player_opt.append(option)
+            magic_question.append(magic_select)
+            cpu_option.append(enemy_option)
+            player_hp_panda.append(player_hp)
+            enemy_hp_panda.append(enemy_hp)
             break
         cpu_rand_turn = random.randint(1, 3)
 
+        # Defines what action the CPU will use for the turn
+        if cpu_rand_turn == 1:
+            enemy_option = "attack"
+        elif cpu_rand_turn == 2:
+            enemy_option = "special attack"
+        else:
+            enemy_option = "heal"
+
+        # Display of Round, Turn, Player hp and CPU hp
         print(f"🛃🛃🛃 Round: {round_count + 1} "
-              f"- Turn: {player_turn} "
+              f"- Turn: {player_turn + 1} "
               f"- Enemy HP: {enemy_hp} - Your HP: {player_hp}\n")
 
         print("")
@@ -223,15 +331,17 @@ while True:
                 print("You defended \n")
                 defense = 1
             case "magic":
-                print("Answer a question to use a magic attack")
-                print(list_name)
+                print("Answer a question correctly to use a magic attack\n")
                 country_answer = country_options(f"What continent is {random_country} in? ")
 
+                # Checks if the country answer is in the list,
+                # Then if it is correct, let them proceed to picking magic option
                 if country_answer == list:
                     print(f"Yes, {random_country} is in {list_name}\n")
                     print()
                     # Magic option, also makes sure you pick the right option
-                    magic_select = string_check("What magic option will you pick?", magics)
+                    magic_select = string_check('''What magic option will you pick?
+(shock / s) (bigbang / b) (Cheat / c) ''', magics)
                     match magic_select:
                         case "shock":
                             print(f"you chose {magic_select}, -50 CPU HP")
@@ -254,13 +364,34 @@ while True:
                 print("You successfully escaped \n")
                 quit()
 
+        # Checks if the CPUs Health Points are zero or below
         if enemy_hp <= 0:
+            enemy_hp = 0
+            enemy_option = "N/A"
+            round_num.append(round_count + 1)
+            turn_num.append(player_turn + 1)
+            player_opt.append(option)
+            magic_question.append(magic_select)
+            cpu_option.append(enemy_option)
+            player_hp_panda.append(player_hp)
+            enemy_hp_panda.append(enemy_hp)
             break
 
-        # CPU turn
+        # Checks if the player has selected the stun magic, and if so,
+        # CPUs turn and append variables to panda
         if stun == 1:
+            enemy_option = "N/A"
+            round_num.append(round_count + 1)
+            turn_num.append(player_turn + 1)
+            player_opt.append(option)
+            magic_question.append(magic_select)
+            cpu_option.append(enemy_option)
+            player_hp_panda.append(player_hp)
+            enemy_hp_panda.append(enemy_hp)
+            player_turn += 1
             continue
 
+        # Start of the CPUs turn
         print("     CPU Turn: ")
         if cpu_rand_turn == 1:
             print("CPU attacked")
@@ -283,21 +414,41 @@ CPU loses HP\n''')
             enemy_hp += 50
             print(f"CPU HP: {enemy_hp}\n")
 
+
+
+        # end of turn, append all variables to panda
+        round_num.append(round_count+1)
+        turn_num.append(player_turn+1)
+        player_opt.append(option)
+        magic_question.append(magic_select)
+        cpu_option.append(enemy_option)
+        player_hp_panda.append(player_hp)
+        enemy_hp_panda.append(enemy_hp)
+
         if player_hp <= 0:
             break
 
         print("")
 
-        # end of turn
+        # Adds player HP to go up so the user doesn't die in two
+        # hits by the CPU, resets stun variable so CPU doesn't get
+        # stunned the next turn, and also makes the turn count go up
         player_hp += 10
         stun = 0
         player_turn += 1
 
-    # end of round
+
+    # end of round / add round count number by 1
     round_count += 1
 
 
-    # make sure player doesn't get HP restored if they are dead
+    # Makes the player regain a good amount of HP if they are still
+    # alive, and the CPU is dead
     if player_hp >= 1:
         player_hp += 150
 
+# Create Dataframe / Table from dictionary
+game_frame = pandas.DataFrame(turn_rounds_dict)
+
+# print out the statistics at the end - Panda
+print(game_frame)
